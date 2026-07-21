@@ -34,19 +34,17 @@ interface Exercise {
 }
 
 const DAY_OPTIONS = [
-  { value: "lower_tue", label: "Lower (Tue)" },
-  { value: "push_wed", label: "Push (Wed)" },
-  { value: "pull_thu", label: "Pull (Thu)" },
-  { value: "lower_sat", label: "Lower (Sat)" },
-  { value: "upper_sun", label: "Upper (Sun)" },
+  { value: "legs",  label: "Legs" },
+  { value: "push",  label: "Push" },
+  { value: "pull",  label: "Pull" },
+  { value: "upper", label: "Upper" },
 ];
 
 const DAY_LABELS: Record<string, string> = {
-  lower_tue: "Lower · Tue",
-  push_wed: "Push · Wed",
-  pull_thu: "Pull · Thu",
-  lower_sat: "Lower · Sat",
-  upper_sun: "Upper · Sun",
+  legs:  "Legs",
+  push:  "Push",
+  pull:  "Pull",
+  upper: "Upper",
 };
 
 // ─── Add / Edit dialog ────────────────────────────────────────────────────────
@@ -268,15 +266,16 @@ export default function ExercisesPage() {
     e.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Group by first day type
+  // Group by ALL day types — an exercise with dayTypes="push,upper" appears in both sections
   const grouped: Record<string, Exercise[]> = {};
   filtered.forEach((e) => {
-    const day = e.dayTypes.split(",")[0];
-    if (!grouped[day]) grouped[day] = [];
-    grouped[day].push(e);
+    e.dayTypes.split(",").forEach((day) => {
+      if (!grouped[day]) grouped[day] = [];
+      grouped[day].push(e);
+    });
   });
 
-  const dayOrder = ["lower_tue", "push_wed", "pull_thu", "lower_sat", "upper_sun"];
+  const dayOrder = ["legs", "push", "pull", "upper"];
 
   return (
     <div className="pt-10 pb-8 space-y-10">

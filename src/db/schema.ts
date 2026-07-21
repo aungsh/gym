@@ -66,9 +66,10 @@ export const verifications = pgTable("verifications", {
 
 /**
  * day_type maps to the weekly split:
- *   lower_tue, push_wed, pull_thu, lower_sat, upper_sun
+ *   legs, push, pull, upper
  */
-export type DayType = "lower_tue" | "push_wed" | "pull_thu" | "lower_sat" | "upper_sun";
+export type DayType = "legs" | "push" | "pull" | "upper";
+
 
 export const exercises = pgTable(
   "exercises",

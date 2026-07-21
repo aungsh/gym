@@ -5,16 +5,20 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   evaluateProgression,
   statusToColor,
   statusToLabel,
   type SetEntry,
 } from "@/lib/progression";
-import { Plus, Trash2, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { Plus, Trash2, ChevronDown, ChevronUp, Check, CalendarIcon } from "lucide-react";
 import { Suspense } from "react";
+import { format, parseISO } from "date-fns";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -43,24 +47,12 @@ interface ExerciseLog {
 // ─── Day config ──────────────────────────────────────────────────────────────
 
 const DAY_OPTIONS = [
-  { value: "lower_tue", label: "Lower", sub: "Tue" },
-  { value: "push_wed", label: "Push", sub: "Wed" },
-  { value: "pull_thu", label: "Pull", sub: "Thu" },
-  { value: "lower_sat", label: "Lower", sub: "Sat" },
-  { value: "upper_sun", label: "Upper", sub: "Sun" },
+  { value: "legs",  label: "Legs",  sub: "" },
+  { value: "push",  label: "Push",  sub: "" },
+  { value: "pull",  label: "Pull",  sub: "" },
+  { value: "upper", label: "Upper", sub: "" },
 ];
 
-function getTodayDayType(): string {
-  const day = new Date().getDay();
-  const map: Record<number, string> = {
-    2: "lower_tue",
-    3: "push_wed",
-    4: "pull_thu",
-    6: "lower_sat",
-    0: "upper_sun",
-  };
-  return map[day] ?? "lower_tue";
-}
 
 function newSet(weightKg = ""): SetRow {
   return { id: crypto.randomUUID(), weightKg, reps: "" };
@@ -74,7 +66,7 @@ function LogWorkoutContent() {
   const searchParams = useSearchParams();
 
   const paramDay = searchParams.get("day");
-  const [dayType, setDayType] = useState<string>(paramDay ?? getTodayDayType());
+  const [dayType, setDayType] = useState<string>(paramDay ?? "legs");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [bodyweight, setBodyweight] = useState("");
   const [notes, setNotes] = useState("");
@@ -224,21 +216,32 @@ function LogWorkoutContent() {
       </div>
 
       {/* Date + bodyweight row */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
-          <label
-            htmlFor="workout-date"
-            className="text-xs font-mono uppercase tracking-widest text-muted-foreground"
-          >
+          <label className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
             Date
           </label>
-          <Input
-            id="workout-date"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="font-mono h-12 sm:h-9 text-base sm:text-sm"
-          />
+          <Popover>
+            <PopoverTrigger render={
+              <Button
+                id="workout-date"
+                variant="outline"
+                className="w-full justify-start font-mono h-12 sm:h-9 text-base sm:text-sm text-left"
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 opacity-50 shrink-0" />
+                <span className="truncate">
+                  {date ? format(parseISO(date), "d MMM yyyy") : "Pick date"}
+                </span>
+              </Button>
+            } />
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date ? parseISO(date) : undefined}
+                onSelect={(d) => d && setDate(format(d, "yyyy-MM-dd"))}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
         <div className="space-y-1.5">
           <label
@@ -264,24 +267,20 @@ function LogWorkoutContent() {
         <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
           Workout type
         </h2>
-        {/* Scrollable row on mobile so all 5 tabs are always reachable */}
-        <div className="-mx-6 px-6 overflow-x-auto sm:mx-0 sm:px-0">
-          <Tabs value={dayType} onValueChange={setDayType}>
-            <TabsList className="h-auto flex flex-nowrap gap-1.5 bg-transparent p-0 w-max sm:flex-wrap sm:w-auto">
-              {DAY_OPTIONS.map((d) => (
-                <TabsTrigger
-                  key={d.value}
-                  value={d.value}
-                  id={`day-tab-${d.value}`}
-                  className="rounded-md px-4 py-2.5 sm:py-1.5 text-sm sm:text-xs font-mono whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground transition-colors"
-                >
-                  {d.label}
-                  <span className="ml-1 opacity-50">{d.sub}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
+        <Tabs value={dayType} onValueChange={setDayType}>
+          <TabsList className="grid grid-cols-4 w-full h-auto bg-muted/40 p-1">
+            {DAY_OPTIONS.map((d) => (
+              <TabsTrigger
+                key={d.value}
+                value={d.value}
+                id={`day-tab-${d.value}`}
+                className="font-mono text-sm py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                {d.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </div>
 
       <Separator />
