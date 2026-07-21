@@ -277,7 +277,7 @@ function LogWorkoutContent() {
                 key={d.value}
                 value={d.value}
                 id={`day-tab-${d.value}`}
-                className="font-mono text-sm py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                className="font-mono text-sm py-2 data-active:bg-primary! data-active:text-primary-foreground!"
               >
                 {d.label}
               </TabsTrigger>
