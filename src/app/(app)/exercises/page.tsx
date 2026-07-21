@@ -5,6 +5,7 @@ import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -222,6 +223,7 @@ export default function ExercisesPage() {
   const router = useRouter();
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [search, setSearch] = useState("");
+  const [loadingExercises, setLoadingExercises] = useState(true);
 
   useEffect(() => {
     if (!isPending && !session) router.replace("/login");
@@ -232,7 +234,8 @@ export default function ExercisesPage() {
       .then((r) => r.json())
       .then((d) => {
         if (Array.isArray(d)) setExercises(d);
-      });
+      })
+      .finally(() => setLoadingExercises(false));
   }, []);
 
   async function handleAdd(data: ExerciseFormData) {
@@ -310,7 +313,24 @@ export default function ExercisesPage() {
       />
 
       <div className="space-y-10">
-        {dayOrder.map((day) => {
+        {loadingExercises ? (
+          <div className="space-y-6 pt-2">
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-20" />
+              <div className="space-y-2">
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+              </div>
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-20" />
+              <div className="space-y-2">
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+              </div>
+            </div>
+          </div>
+        ) : dayOrder.map((day) => {
           const exs = grouped[day];
           if (!exs?.length) return null;
           return (

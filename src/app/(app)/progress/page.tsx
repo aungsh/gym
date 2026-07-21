@@ -27,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getProgressionRecommendation } from "@/lib/progression";
 
 interface Exercise {
@@ -161,11 +162,23 @@ export default function ProgressPage() {
         </select>
       </div>
 
-      {loading && (
-        <p className="text-sm text-muted-foreground font-mono">Loading...</p>
-      )}
-
-      {!loading && exercise && (
+      {/* Main content */}
+      {loading ? (
+        <div className="space-y-12">
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-20 w-full rounded-lg" />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-[250px] w-full rounded-xl" />
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-64 w-full rounded-xl" />
+          </div>
+        </div>
+      ) : exercise && (
         <>
           {/* Target + recommendation */}
           <div className="space-y-2">

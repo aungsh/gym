@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   evaluateProgression,
   statusToColor,
@@ -75,6 +76,7 @@ function LogWorkoutContent() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [seeding, setSeeding] = useState(false);
+  const [loadingExercises, setLoadingExercises] = useState(true);
 
   // Redirect if not authed
   useEffect(() => {
@@ -87,7 +89,8 @@ function LogWorkoutContent() {
       .then((r) => r.json())
       .then((data: Exercise[]) => {
         if (Array.isArray(data)) setAllExercises(data);
-      });
+      })
+      .finally(() => setLoadingExercises(false));
   }, []);
 
   // Filter by day type and build logs
@@ -285,8 +288,29 @@ function LogWorkoutContent() {
 
       <Separator />
 
+      {/* Loading state */}
+      {loadingExercises && (
+        <div className="space-y-6 pt-4">
+          <div className="space-y-4">
+            <Skeleton className="h-6 w-1/3" />
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-6 w-1/3" />
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* No exercises state */}
-      {noExercises && (
+      {!loadingExercises && noExercises && (
         <div className="space-y-4 py-4">
           <p className="text-sm text-muted-foreground">
             No exercises set up yet.
@@ -303,7 +327,7 @@ function LogWorkoutContent() {
       )}
 
       {/* Exercise logs */}
-      {exerciseLogs.length > 0 && (
+      {!loadingExercises && !noExercises && exerciseLogs.length > 0 && (
         <div className="space-y-0">
           {exerciseLogs.map((el, exIdx) => (
             <ExerciseLogRow

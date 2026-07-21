@@ -11,6 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface WorkoutSession {
@@ -225,6 +226,7 @@ export default function HistoryPage() {
   const router = useRouter();
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const [loadingSessions, setLoadingSessions] = useState(true);
 
   useEffect(() => {
     if (!isPending && !session) router.replace("/login");
@@ -235,7 +237,8 @@ export default function HistoryPage() {
       .then((r) => r.json())
       .then((d) => {
         if (Array.isArray(d)) setSessions(d);
-      });
+      })
+      .finally(() => setLoadingSessions(false));
   }, []);
 
   if (isPending || !session) return null;
@@ -257,16 +260,37 @@ export default function HistoryPage() {
         <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
           Last 52 weeks
         </p>
-        <ContributionCalendar sessions={sessions} />
-        <p className="text-xs text-muted-foreground font-mono">
-          {sessions.length} session{sessions.length !== 1 ? "s" : ""} total
-        </p>
+        {loadingSessions ? (
+          <Skeleton className="h-14 w-full" />
+        ) : (
+          <>
+            <ContributionCalendar sessions={sessions} />
+            <p className="text-xs text-muted-foreground font-mono">
+              {sessions.length} session{sessions.length !== 1 ? "s" : ""} total
+            </p>
+          </>
+        )}
       </div>
 
       <Separator />
 
       {/* Session list */}
-      {sessions.length === 0 ? (
+      {loadingSessions ? (
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        </div>
+      ) : sessions.length === 0 ? (
         <p className="text-sm text-muted-foreground">No sessions logged yet.</p>
       ) : (
         <div className="space-y-0">
