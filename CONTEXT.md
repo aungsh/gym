@@ -89,7 +89,7 @@ This LPPLU split was intentionally chosen because recovery was better than PPLUL
 
 # Final Training Program
 
-## Monday / Friday Lower
+## Tuesday - Legs (Heavy)
 
 Back Squat
 - 4 × 6–8
@@ -106,20 +106,17 @@ Seated Leg Curl
 Standing Calf Raise
 - 3–4 × 12–15
 
-Abs
-Alternate between:
-
-- Hanging Leg Raise
-- Weighted Decline Sit-up / Decline Crunch
+Weighted Decline Decline Crunch
+- 3 × 15–20
 
 ---
 
-## Tuesday Push (Heavy)
+## Wednesday - Push (Heavy)
 
 Smith Machine Incline Bench Press
 - 3–4 × 6–8
 
-Machine Chest Press
+Pec Fly Machine
 - 3 × 8–10
 
 Seated Dumbbell Shoulder Press
@@ -131,14 +128,14 @@ Cable Lateral Raise
 Incline Dumbbell Curl
 - 3 × 8–12
 
-Hammer Curl
+Bicep Curl Machine
 - 3 × 10–12
 
 (Biceps intentionally moved to Push.)
 
 ---
 
-## Wednesday Pull (Heavy)
+## Thursday - Pull (Heavy)
 
 Lat Pulldown
 - 3–4 × 6–8
@@ -165,18 +162,38 @@ Back Extension
 
 ---
 
-## Saturday Upper (Volume)
+## Saturday - Lower (Volume)
+
+Back Squat
+- 4 × 8-10
+
+Romanian Deadlift
+- 3 × 8-10
+
+Leg Extension
+- 3 × 12-15
+
+Seated Leg Curl
+- 3 × 12-15
+
+Standing Calf Raise
+- 3–4 × 15-20
+
+Weighted Decline Decline Crunch
+- 3 × 10-15
+
+## Sunday - Upper (Volume)
 
 Smith Machine Incline Bench Press
 - 3 × 8–10
 
-Wide Grip Lat Pulldown
+Lat Pulldown
 - 3 × 10–12
 
 Machine / Cable Row
 - 3 × 10–12
 
-Pec Fly Machine / Cable Fly
+Pec Fly Machine
 - 3 × 12–15
 
 Seated Dumbbell Shoulder Press
