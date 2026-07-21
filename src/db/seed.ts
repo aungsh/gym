@@ -20,10 +20,10 @@ interface ExerciseSeed {
 }
 
 export const EXERCISE_SEEDS: ExerciseSeed[] = [
-  // ── Tuesday Lower ──────────────────────────────────────────────
+  // ── Tuesday: Lower (Heavy) ─────────────────────────────────────
   {
     name: "Back Squat",
-    dayTypes: ["lower_tue", "lower_sat"],
+    dayTypes: ["lower_tue"],
     targetSets: 4,
     repRangeMin: 6,
     repRangeMax: 8,
@@ -31,7 +31,7 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
   },
   {
     name: "Romanian Deadlift",
-    dayTypes: ["lower_tue", "lower_sat"],
+    dayTypes: ["lower_tue"],
     targetSets: 3,
     repRangeMin: 6,
     repRangeMax: 8,
@@ -39,7 +39,7 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
   },
   {
     name: "Leg Extension",
-    dayTypes: ["lower_tue", "lower_sat"],
+    dayTypes: ["lower_tue"],
     targetSets: 3,
     repRangeMin: 10,
     repRangeMax: 12,
@@ -47,7 +47,7 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
   },
   {
     name: "Seated Leg Curl",
-    dayTypes: ["lower_tue", "lower_sat"],
+    dayTypes: ["lower_tue"],
     targetSets: 3,
     repRangeMin: 10,
     repRangeMax: 12,
@@ -55,32 +55,32 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
   },
   {
     name: "Standing Calf Raise",
-    dayTypes: ["lower_tue", "lower_sat"],
-    targetSets: 3,
+    dayTypes: ["lower_tue"],
+    targetSets: 3, // 3-4
     repRangeMin: 12,
     repRangeMax: 15,
     sortOrder: 5,
   },
   {
-    name: "Hanging Leg Raise",
-    dayTypes: ["lower_tue", "lower_sat"],
+    name: "Weighted Decline Crunch",
+    dayTypes: ["lower_tue"],
     targetSets: 3,
-    repRangeMin: 10,
-    repRangeMax: 15,
+    repRangeMin: 15,
+    repRangeMax: 20,
     sortOrder: 6,
   },
 
-  // ── Wednesday Push ─────────────────────────────────────────────
+  // ── Wednesday: Push (Heavy) ────────────────────────────────────
   {
     name: "Smith Machine Incline Bench Press",
     dayTypes: ["push_wed"],
-    targetSets: 4,
+    targetSets: 3, // 3-4
     repRangeMin: 6,
     repRangeMax: 8,
     sortOrder: 1,
   },
   {
-    name: "Machine Chest Press",
+    name: "Pec Fly Machine",
     dayTypes: ["push_wed"],
     targetSets: 3,
     repRangeMin: 8,
@@ -89,7 +89,7 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
   },
   {
     name: "Seated Dumbbell Shoulder Press",
-    dayTypes: ["push_wed", "upper_sun"],
+    dayTypes: ["push_wed"],
     targetSets: 3,
     repRangeMin: 8,
     repRangeMax: 10,
@@ -97,8 +97,8 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
   },
   {
     name: "Cable Lateral Raise",
-    dayTypes: ["push_wed", "upper_sun"],
-    targetSets: 4,
+    dayTypes: ["push_wed"],
+    targetSets: 3, // 3-4
     repRangeMin: 12,
     repRangeMax: 15,
     sortOrder: 4,
@@ -112,7 +112,7 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
     sortOrder: 5,
   },
   {
-    name: "Hammer Curl",
+    name: "Bicep Curl Machine",
     dayTypes: ["push_wed"],
     targetSets: 3,
     repRangeMin: 10,
@@ -120,11 +120,11 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
     sortOrder: 6,
   },
 
-  // ── Thursday Pull ──────────────────────────────────────────────
+  // ── Thursday: Pull (Heavy) ─────────────────────────────────────
   {
     name: "Lat Pulldown",
     dayTypes: ["pull_thu"],
-    targetSets: 4,
+    targetSets: 3, // 3-4
     repRangeMin: 6,
     repRangeMax: 8,
     sortOrder: 1,
@@ -155,7 +155,7 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
   },
   {
     name: "Overhead Cable Triceps Extension",
-    dayTypes: ["pull_thu", "upper_sun"],
+    dayTypes: ["pull_thu"],
     targetSets: 3,
     repRangeMin: 10,
     repRangeMax: 15,
@@ -178,17 +178,67 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
     sortOrder: 7,
   },
 
-  // ── Sunday Upper (Volume) ──────────────────────────────────────
+  // ── Saturday: Lower (Volume) ───────────────────────────────────
   {
-    name: "Wide Grip Lat Pulldown",
-    dayTypes: ["upper_sun"],
-    targetSets: 3,
-    repRangeMin: 10,
-    repRangeMax: 12,
+    name: "Back Squat",
+    dayTypes: ["lower_sat"],
+    targetSets: 4,
+    repRangeMin: 8,
+    repRangeMax: 10,
     sortOrder: 1,
   },
   {
-    name: "Machine / Cable Row",
+    name: "Romanian Deadlift",
+    dayTypes: ["lower_sat"],
+    targetSets: 3,
+    repRangeMin: 8,
+    repRangeMax: 10,
+    sortOrder: 2,
+  },
+  {
+    name: "Leg Extension",
+    dayTypes: ["lower_sat"],
+    targetSets: 3,
+    repRangeMin: 12,
+    repRangeMax: 15,
+    sortOrder: 3,
+  },
+  {
+    name: "Seated Leg Curl",
+    dayTypes: ["lower_sat"],
+    targetSets: 3,
+    repRangeMin: 12,
+    repRangeMax: 15,
+    sortOrder: 4,
+  },
+  {
+    name: "Standing Calf Raise",
+    dayTypes: ["lower_sat"],
+    targetSets: 3, // 3-4
+    repRangeMin: 15,
+    repRangeMax: 20,
+    sortOrder: 5,
+  },
+  {
+    name: "Weighted Decline Crunch",
+    dayTypes: ["lower_sat"],
+    targetSets: 3,
+    repRangeMin: 10,
+    repRangeMax: 15,
+    sortOrder: 6,
+  },
+
+  // ── Sunday: Upper (Volume) ─────────────────────────────────────
+  {
+    name: "Smith Machine Incline Bench Press",
+    dayTypes: ["upper_sun"],
+    targetSets: 3,
+    repRangeMin: 8,
+    repRangeMax: 10,
+    sortOrder: 1,
+  },
+  {
+    name: "Lat Pulldown",
     dayTypes: ["upper_sun"],
     targetSets: 3,
     repRangeMin: 10,
@@ -196,15 +246,15 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
     sortOrder: 2,
   },
   {
-    name: "Pec Fly Machine",
+    name: "Machine / Cable Row",
     dayTypes: ["upper_sun"],
     targetSets: 3,
-    repRangeMin: 12,
-    repRangeMax: 15,
+    repRangeMin: 10,
+    repRangeMax: 12,
     sortOrder: 3,
   },
   {
-    name: "Rear Delt Fly",
+    name: "Pec Fly Machine",
     dayTypes: ["upper_sun"],
     targetSets: 3,
     repRangeMin: 12,
@@ -212,12 +262,44 @@ export const EXERCISE_SEEDS: ExerciseSeed[] = [
     sortOrder: 4,
   },
   {
-    name: "Bicep Curl Machine",
+    name: "Seated Dumbbell Shoulder Press",
+    dayTypes: ["upper_sun"],
+    targetSets: 2, // 2-3
+    repRangeMin: 10,
+    repRangeMax: 12,
+    sortOrder: 5,
+  },
+  {
+    name: "Cable Lateral Raise",
+    dayTypes: ["upper_sun"],
+    targetSets: 3,
+    repRangeMin: 12,
+    repRangeMax: 15,
+    sortOrder: 6,
+  },
+  {
+    name: "Rear Delt Fly",
+    dayTypes: ["upper_sun"],
+    targetSets: 3,
+    repRangeMin: 12,
+    repRangeMax: 15,
+    sortOrder: 7,
+  },
+  {
+    name: "Bicep Curl Machine / EZ Curl",
     dayTypes: ["upper_sun"],
     targetSets: 3,
     repRangeMin: 10,
     repRangeMax: 12,
-    sortOrder: 5,
+    sortOrder: 8,
+  },
+  {
+    name: "Overhead Cable Triceps Extension",
+    dayTypes: ["upper_sun"],
+    targetSets: 3,
+    repRangeMin: 10,
+    repRangeMax: 15,
+    sortOrder: 9,
   },
 ];
 
