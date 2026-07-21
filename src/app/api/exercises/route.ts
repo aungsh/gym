@@ -5,14 +5,21 @@ import { requireServerSession } from "@/lib/server-auth";
 import { and, eq } from "drizzle-orm";
 import { seedExercisesForUser } from "@/db/seed";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await requireServerSession().catch(() => null);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const includeArchived = searchParams.get("includeArchived") === "true";
 
   const rows = await db
     .select()
     .from(exercises)
-    .where(and(eq(exercises.userId, session.user.id), eq(exercises.isActive, true)))
+    .where(
+      includeArchived
+        ? and(eq(exercises.userId, session.user.id), eq(exercises.isActive, false))
+        : and(eq(exercises.userId, session.user.id), eq(exercises.isActive, true))
+    )
     .orderBy(exercises.sortOrder);
 
   return NextResponse.json(rows);

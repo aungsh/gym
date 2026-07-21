@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, EyeOff, RotateCcw, ChevronDown } from "lucide-react";
 
 interface Exercise {
   id: string;
@@ -222,8 +222,11 @@ export default function ExercisesPage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [archivedExercises, setArchivedExercises] = useState<Exercise[]>([]);
   const [search, setSearch] = useState("");
   const [loadingExercises, setLoadingExercises] = useState(true);
+  const [showArchived, setShowArchived] = useState(false);
+  const [loadingArchived, setLoadingArchived] = useState(false);
 
   useEffect(() => {
     if (!isPending && !session) router.replace("/login");
@@ -258,9 +261,45 @@ export default function ExercisesPage() {
     setExercises((prev) => prev.map((e) => (e.id === id ? row : e)));
   }
 
+  // Soft-archive: mark isActive=false, move to archived list
+  async function handleArchive(id: string) {
+    await fetch(`/api/exercises/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isActive: false }),
+    });
+    const ex = exercises.find((e) => e.id === id);
+    setExercises((prev) => prev.filter((e) => e.id !== id));
+    if (ex) setArchivedExercises((prev) => [{ ...ex, isActive: false }, ...prev]);
+  }
+
+  // Restore: mark isActive=true, move back to active list
+  async function handleRestore(id: string) {
+    await fetch(`/api/exercises/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isActive: true }),
+    });
+    const ex = archivedExercises.find((e) => e.id === id);
+    setArchivedExercises((prev) => prev.filter((e) => e.id !== id));
+    if (ex) setExercises((prev) => [...prev, { ...ex, isActive: true }]);
+  }
+
   async function handleDelete(id: string) {
     await fetch(`/api/exercises/${id}`, { method: "DELETE" });
-    setExercises((prev) => prev.filter((e) => e.id !== id));
+    setArchivedExercises((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  // Lazy-load archived exercises when panel is first opened
+  async function handleToggleArchived() {
+    if (!showArchived && archivedExercises.length === 0) {
+      setLoadingArchived(true);
+      const res = await fetch("/api/exercises?includeArchived=true");
+      const d = await res.json();
+      if (Array.isArray(d)) setArchivedExercises(d);
+      setLoadingArchived(false);
+    }
+    setShowArchived((v) => !v);
   }
 
   if (isPending || !session) return null;
@@ -360,10 +399,11 @@ export default function ExercisesPage() {
                       }
                     />
                     <button
-                      onClick={() => handleDelete(ex.id)}
-                      className="h-8 w-8 flex items-center justify-center text-muted-foreground/40 hover:text-destructive transition-colors rounded"
+                      onClick={() => handleArchive(ex.id)}
+                      title="Archive exercise"
+                      className="h-8 w-8 flex items-center justify-center text-muted-foreground/40 hover:text-muted-foreground transition-colors rounded"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <EyeOff className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
@@ -372,10 +412,68 @@ export default function ExercisesPage() {
           );
         })}
 
-        {filtered.length === 0 && (
+        {filtered.length === 0 && !loadingExercises && (
           <p className="text-sm text-muted-foreground">
             {search ? "No exercises match your search." : "No exercises yet."}
           </p>
+        )}
+
+        {/* ── Archived section ── */}
+        {!loadingExercises && (
+          <div className="border-t border-border pt-6">
+            <button
+              onClick={handleToggleArchived}
+              className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform ${showArchived ? "rotate-180" : ""}`}
+              />
+              Archived
+            </button>
+
+            {showArchived && (
+              <div className="mt-4 space-y-0">
+                {loadingArchived && (
+                  <div className="space-y-2">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                  </div>
+                )}
+                {!loadingArchived && archivedExercises.length === 0 && (
+                  <p className="text-sm text-muted-foreground">No archived exercises.</p>
+                )}
+                {!loadingArchived && archivedExercises.map((ex) => (
+                  <div
+                    key={ex.id}
+                    className="flex items-center justify-between py-3.5 border-b border-border last:border-b-0 opacity-50"
+                  >
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium">{ex.name}</p>
+                      <p className="text-xs font-mono text-muted-foreground">
+                        {ex.dayTypes.split(",").map((d) => DAY_LABELS[d] ?? d).join(" · ")}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleRestore(ex.id)}
+                        title="Restore to program"
+                        className="h-8 w-8 flex items-center justify-center text-muted-foreground/40 hover:text-primary transition-colors rounded"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(ex.id)}
+                        title="Delete permanently"
+                        className="h-8 w-8 flex items-center justify-center text-muted-foreground/20 hover:text-destructive transition-colors rounded"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>
