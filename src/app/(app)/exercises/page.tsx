@@ -290,14 +290,14 @@ export default function ExercisesPage() {
         <ExerciseDialog
           onSave={handleAdd}
           trigger={
-            <button
+            <div
               id="add-exercise"
-              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90 cursor-pointer"
               style={{ background: "oklch(0.87 0.22 130)", color: "oklch(0.08 0 0)" }}
             >
               <Plus className="h-3.5 w-3.5" />
               Add
-            </button>
+            </div>
           }
         />
       </div>
@@ -335,9 +335,9 @@ export default function ExercisesPage() {
                       exercise={ex}
                       onSave={(data) => handleEdit(ex.id, data)}
                       trigger={
-                        <button className="h-8 w-8 flex items-center justify-center text-muted-foreground/40 hover:text-foreground transition-colors rounded">
+                        <div className="h-8 w-8 flex items-center justify-center text-muted-foreground/40 hover:text-foreground transition-colors rounded cursor-pointer">
                           <Pencil className="h-3.5 w-3.5" />
-                        </button>
+                        </div>
                       }
                     />
                     <button
