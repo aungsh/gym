@@ -224,9 +224,12 @@ function LogWorkoutContent() {
       </div>
 
       {/* Date + bodyweight row */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <label className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+          <label
+            htmlFor="workout-date"
+            className="text-xs font-mono uppercase tracking-widest text-muted-foreground"
+          >
             Date
           </label>
           <Input
@@ -234,11 +237,14 @@ function LogWorkoutContent() {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="font-mono"
+            className="font-mono h-12 sm:h-9 text-base sm:text-sm"
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+          <label
+            htmlFor="bodyweight"
+            className="text-xs font-mono uppercase tracking-widest text-muted-foreground"
+          >
             Bodyweight (kg)
           </label>
           <Input
@@ -248,7 +254,7 @@ function LogWorkoutContent() {
             placeholder="66.0"
             value={bodyweight}
             onChange={(e) => setBodyweight(e.target.value)}
-            className="font-mono"
+            className="font-mono h-12 sm:h-9 text-base sm:text-sm"
           />
         </div>
       </div>
@@ -258,21 +264,24 @@ function LogWorkoutContent() {
         <h2 className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
           Workout type
         </h2>
-        <Tabs value={dayType} onValueChange={setDayType}>
-          <TabsList className="h-auto flex-wrap gap-1 bg-transparent p-0">
-            {DAY_OPTIONS.map((d) => (
-              <TabsTrigger
-                key={d.value}
-                value={d.value}
-                id={`day-tab-${d.value}`}
-                className="rounded-md px-3 py-1.5 text-xs font-mono data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground transition-colors"
-              >
-                {d.label}
-                <span className="ml-1 opacity-50">{d.sub}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        {/* Scrollable row on mobile so all 5 tabs are always reachable */}
+        <div className="-mx-6 px-6 overflow-x-auto sm:mx-0 sm:px-0">
+          <Tabs value={dayType} onValueChange={setDayType}>
+            <TabsList className="h-auto flex flex-nowrap gap-1.5 bg-transparent p-0 w-max sm:flex-wrap sm:w-auto">
+              {DAY_OPTIONS.map((d) => (
+                <TabsTrigger
+                  key={d.value}
+                  value={d.value}
+                  id={`day-tab-${d.value}`}
+                  className="rounded-md px-4 py-2.5 sm:py-1.5 text-sm sm:text-xs font-mono whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground transition-colors"
+                >
+                  {d.label}
+                  <span className="ml-1 opacity-50">{d.sub}</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
 
       <Separator />
