@@ -4,7 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface WorkoutSession {
@@ -30,10 +36,15 @@ interface SessionDetail {
 }
 
 const DAY_LABELS: Record<string, string> = {
-  lower_tue: "Lower",
-  push_wed: "Push",
-  pull_thu: "Pull",
-  lower_sat: "Lower",
+  legs:  "Legs",
+  push:  "Push",
+  pull:  "Pull",
+  upper: "Upper",
+  // Legacy values from before the split was renamed
+  lower_tue: "Legs",
+  push_wed:  "Push",
+  pull_thu:  "Pull",
+  lower_sat: "Legs",
   upper_sun: "Upper",
 };
 
@@ -55,7 +66,9 @@ interface CalendarProps {
 function ContributionCalendar({ sessions }: CalendarProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const sessionDates = new Set(sessions.map((s) => s.date));
+  // Build a map of date → session for tooltip data
+  const sessionByDate = new Map<string, WorkoutSession>();
+  sessions.forEach((s) => sessionByDate.set(s.date, s));
 
   // Build 52 weeks of days
   const today = new Date();
@@ -83,38 +96,56 @@ function ContributionCalendar({ sessions }: CalendarProps) {
   }, []);
 
   return (
-    <div ref={containerRef} className="overflow-x-auto pb-2">
-      <div className="flex gap-[3px] min-w-max">
-        {weeks.map((week, wi) => (
-          <div key={wi} className="flex flex-col gap-[3px]">
-            {week.map((day) => {
-              const dateStr = day.toISOString().split("T")[0];
-              const isFuture = day > today;
-              const hasSession = sessionDates.has(dateStr);
-              const isToday = dateStr === today.toISOString().split("T")[0];
+    <TooltipProvider delay={100}>
+      <div ref={containerRef} className="overflow-x-auto pb-2">
+        <div className="flex gap-[3px] min-w-max">
+          {weeks.map((week, wi) => (
+            <div key={wi} className="flex flex-col gap-[3px]">
+              {week.map((day) => {
+                const dateStr = day.toISOString().split("T")[0];
+                const isFuture = day > today;
+                const session = sessionByDate.get(dateStr);
+                const hasSession = !!session;
+                const isToday = dateStr === today.toISOString().split("T")[0];
 
-              return (
-                <div
-                  key={dateStr}
-                  title={dateStr}
-                  className="w-[12px] h-[12px] rounded-[2px] transition-colors"
-                  style={{
-                    background: isFuture
-                      ? "oklch(1 0 0 / 4%)"
-                      : hasSession
-                      ? "oklch(0.87 0.22 130)"
-                      : isToday
-                      ? "oklch(1 0 0 / 15%)"
-                      : "oklch(1 0 0 / 8%)",
-                    outline: isToday ? "1px solid oklch(0.87 0.22 130 / 50%)" : undefined,
-                  }}
-                />
-              );
-            })}
-          </div>
-        ))}
+                const square = (
+                  <div
+                    key={dateStr}
+                    className="w-[12px] h-[12px] rounded-[2px] transition-colors cursor-default"
+                    style={{
+                      background: isFuture
+                        ? "oklch(1 0 0 / 4%)"
+                        : hasSession
+                        ? "oklch(0.87 0.22 130)"
+                        : isToday
+                        ? "oklch(1 0 0 / 15%)"
+                        : "oklch(1 0 0 / 8%)",
+                      outline: isToday ? "1px solid oklch(0.87 0.22 130 / 50%)" : undefined,
+                    }}
+                  />
+                );
+
+                if (!hasSession || isFuture) return square;
+
+                return (
+                  <Tooltip key={dateStr}>
+                    <TooltipTrigger render={square} />
+                    <TooltipContent side="top" className="text-xs font-mono max-w-[200px]">
+                      <p className="font-semibold mb-0.5">
+                        {DAY_LABELS[session.dayType] ?? session.dayType} · {formatDate(session.date)}
+                      </p>
+                      {session.bodweightKg && (
+                        <p className="text-muted-foreground">{session.bodweightKg} kg</p>
+                      )}
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
 
@@ -187,17 +218,20 @@ function SessionRow({ session }: { session: WorkoutSession }) {
 
 // ─── Main page ───────────────────────────────────────────────────────────────
 
+const PAGE_SIZE = 5;
+
 export default function HistoryPage() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
   useEffect(() => {
     if (!isPending && !session) router.replace("/login");
   }, [session, isPending, router]);
 
   useEffect(() => {
-    fetch("/api/sessions?limit=50")
+    fetch("/api/sessions?limit=200")
       .then((r) => r.json())
       .then((d) => {
         if (Array.isArray(d)) setSessions(d);
@@ -205,6 +239,9 @@ export default function HistoryPage() {
   }, []);
 
   if (isPending || !session) return null;
+
+  const shown = sessions.slice(0, visible);
+  const hasMore = visible < sessions.length;
 
   return (
     <div className="pt-10 pb-8 space-y-10">
@@ -233,9 +270,22 @@ export default function HistoryPage() {
         <p className="text-sm text-muted-foreground">No sessions logged yet.</p>
       ) : (
         <div className="space-y-0">
-          {sessions.map((s) => (
+          {shown.map((s) => (
             <SessionRow key={s.id} session={s} />
           ))}
+
+          {hasMore && (
+            <div className="pt-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="font-mono text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setVisible((v) => v + PAGE_SIZE)}
+              >
+                Load more ({sessions.length - visible} remaining)
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </div>
