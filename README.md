@@ -2,9 +2,7 @@
 
 A minimal, dark mode web app for tracking gym progress.
 
-![Log Page](public/assets/log-page.png)
-
----
+![Login Page](public/assets/login.png)
 
 ## Features
 
@@ -32,8 +30,6 @@ A minimal, dark mode web app for tracking gym progress.
 
 ![Exercises Page](public/assets/exercises-page.png)
 
----
-
 ## Stack
 
 | Layer | Tech |
@@ -45,8 +41,6 @@ A minimal, dark mode web app for tracking gym progress.
 | Database | PostgreSQL |
 | ORM | Drizzle ORM |
 | Language | TypeScript |
-
----
 
 ## Getting Started
 
@@ -94,9 +88,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000), sign in with Google, then hit **"Load my program"** on the log page to seed your exercises.
 
-![Login Page](public/assets/login.png)
-
----
+![Log Page](public/assets/log-page.png)
 
 ## Database Scripts
 
@@ -105,8 +97,6 @@ npm run db:push      # Push schema changes to the database
 npm run db:studio    # Open Drizzle Studio (visual DB browser)
 npm run db:generate  # Generate migration files
 ```
-
----
 
 ## Progression Logic
 
@@ -126,8 +116,6 @@ For a target of `3 × 8–10`:
 The progression badge updates live as you enter reps.
 
 ![Progression Feedback](public/assets/example-exercise-feedback.png)
-
----
 
 ## Project Structure
 
