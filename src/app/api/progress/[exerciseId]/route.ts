@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { sets, sessionExercises, workoutSessions, exercises } from "@/db/schema";
 import { requireServerSession } from "@/lib/server-auth";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, inArray } from "drizzle-orm";
 
 /**
  * GET /api/progress/[exerciseId]
@@ -27,7 +27,16 @@ export async function GET(
 
   if (!exercise) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Get all session exercises for this exercise
+  // Find ALL exercises with this exact name for this user (to merge heavy/volume variants)
+  const matchingExercises = await db
+    .select({ id: exercises.id })
+    .from(exercises)
+    .where(
+      and(eq(exercises.name, exercise.name), eq(exercises.userId, session.user.id))
+    );
+  const matchingIds = matchingExercises.map((e) => e.id);
+
+  // Get all session exercises for ANY of these exerciseIds
   const sesExercises = await db
     .select({
       sessionExerciseId: sessionExercises.id,
@@ -42,7 +51,7 @@ export async function GET(
     )
     .where(
       and(
-        eq(sessionExercises.exerciseId, exerciseId),
+        inArray(sessionExercises.exerciseId, matchingIds),
         eq(workoutSessions.userId, session.user.id)
       )
     )

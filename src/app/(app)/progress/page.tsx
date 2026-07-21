@@ -5,13 +5,6 @@ import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -86,8 +79,16 @@ export default function ProgressPage() {
       .then((r) => r.json())
       .then((d: Exercise[]) => {
         if (Array.isArray(d)) {
-          setExercises(d);
-          if (d.length > 0) setSelectedId(d[0].id);
+          const unique = [];
+          const seen = new Set();
+          for (const e of d) {
+            if (!seen.has(e.name)) {
+              seen.add(e.name);
+              unique.push(e);
+            }
+          }
+          setExercises(unique);
+          if (unique.length > 0) setSelectedId(unique[0].id);
         }
       });
   }, []);
@@ -142,21 +143,24 @@ export default function ProgressPage() {
 
       {/* Exercise selector */}
       <div className="space-y-2">
-        <label className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+        <label
+          htmlFor="exercise-select"
+          className="text-xs font-mono uppercase tracking-widest text-muted-foreground"
+        >
           Exercise
         </label>
-        <Select value={selectedId ?? ""} onValueChange={setSelectedId}>
-          <SelectTrigger id="exercise-select" className="w-full sm:w-72 font-mono">
-            <SelectValue placeholder="Select exercise" />
-          </SelectTrigger>
-          <SelectContent>
-            {exercises.map((e) => (
-              <SelectItem key={e.id} value={e.id} className="font-mono text-sm">
-                {e.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <select
+          id="exercise-select"
+          value={selectedId ?? ""}
+          onChange={(e) => setSelectedId(e.target.value)}
+          className="w-full sm:w-80 h-9 rounded-lg border border-input bg-transparent px-3 text-sm font-mono text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 cursor-pointer"
+        >
+          {exercises.map((e) => (
+            <option key={e.id} value={e.id} className="bg-popover text-foreground">
+              {e.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {loading && (
