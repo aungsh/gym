@@ -1,32 +1,36 @@
 # Gym Tracker
 
-> Log weight and reps. See exactly when to increase the load.
+A minimal, dark mode web app for tracking gym progress.
 
-A minimal, dark-mode web app for tracking progressive overload, built around the rep-first principle: **hit the top of your rep range on every set before increasing weight.**
+![Log Page](public/assets/log-page.png)
 
 ---
 
 ## Features
 
 **Log workouts fast**
-- Day type auto-selected by weekday
-- Exercises auto-populate from your program
-- `[kg] × [reps]` entry per set — `Enter` advances to the next field
+- Exercises auto populate from your program
+- `[kg] × [reps]` entry per set, `Enter` advances to the next field
 - Live progression status updates as you type
 
 **Analyse progress per exercise**
-- Weight-over-time line chart
+
+![Progress Page](public/assets/progress-page.png)
+
+- Weight over time line chart
 - Total volume bar chart
 - Last 8 sessions in a compact table
-- Plain-English recommendation: keep going vs. increase weight
 
 **History**
-- GitHub-style 52-week contribution calendar
-- Expandable session log with lazy-loaded set details
+
+![History Page](public/assets/history-page.png)
+
+- GitHub-style 52 week contribution calendar
+- Expandable session log with lazy loaded set details
 
 **Program management**
-- Full exercise list pre-seeded from your program
-- Add, edit, or remove exercises grouped by day
+
+![Exercises Page](public/assets/exercises-page.png)
 
 ---
 
@@ -41,20 +45,6 @@ A minimal, dark-mode web app for tracking progressive overload, built around the
 | Database | PostgreSQL |
 | ORM | Drizzle ORM |
 | Language | TypeScript |
-
----
-
-## Weekly Split
-
-| Day | Session |
-|---|---|
-| Mon | Rest |
-| **Tue** | Lower |
-| **Wed** | Push |
-| **Thu** | Pull |
-| Fri | Rest |
-| **Sat** | Lower |
-| **Sun** | Upper |
 
 ---
 
@@ -104,6 +94,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000), sign in with Google, then hit **"Load my program"** on the log page to seed your exercises.
 
+![Login Page](public/assets/login.png)
+
 ---
 
 ## Database Scripts
@@ -132,6 +124,8 @@ For a target of `3 × 8–10`:
 | Week 4 | 10 | 10 | 10 | **Increase weight** |
 
 The progression badge updates live as you enter reps.
+
+![Progression Feedback](public/assets/example-exercise-feedback.png)
 
 ---
 
