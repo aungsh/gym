@@ -66,7 +66,7 @@ export default function ProgressPage() {
   const router = useRouter();
 
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -74,33 +74,31 @@ export default function ProgressPage() {
     if (!isPending && !session) router.replace("/login");
   }, [session, isPending, router]);
 
+  // Deduplicated exercise names for the selector
+  const uniqueNames = Array.from(
+    new Map(exercises.map((e) => [e.name, e])).values()
+  );
+
   useEffect(() => {
     fetch("/api/exercises")
       .then((r) => r.json())
       .then((d: Exercise[]) => {
         if (Array.isArray(d)) {
-          const unique = [];
-          const seen = new Set();
-          for (const e of d) {
-            if (!seen.has(e.name)) {
-              seen.add(e.name);
-              unique.push(e);
-            }
-          }
-          setExercises(unique);
-          if (unique.length > 0) setSelectedId(unique[0].id);
+          setExercises(d);
+          // Select first unique name
+          if (d.length > 0) setSelectedName(d[0].name);
         }
       });
   }, []);
 
   useEffect(() => {
-    if (!selectedId) return;
+    if (!selectedName) return;
     setLoading(true);
-    fetch(`/api/progress/${selectedId}`)
+    fetch(`/api/progress/${encodeURIComponent(selectedName)}`)
       .then((r) => r.json())
       .then((d) => setData(d))
       .finally(() => setLoading(false));
-  }, [selectedId]);
+  }, [selectedName]);
 
   if (isPending || !session) return null;
 
@@ -151,12 +149,12 @@ export default function ProgressPage() {
         </label>
         <select
           id="exercise-select"
-          value={selectedId ?? ""}
-          onChange={(e) => setSelectedId(e.target.value)}
+          value={selectedName ?? ""}
+          onChange={(e) => setSelectedName(e.target.value)}
           className="w-full sm:w-80 h-9 rounded-lg border border-input bg-transparent px-3 text-sm font-mono text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/50 cursor-pointer"
         >
-          {exercises.map((e) => (
-            <option key={e.id} value={e.id} className="bg-popover text-foreground">
+          {uniqueNames.map((e) => (
+            <option key={e.name} value={e.name} className="bg-popover text-foreground">
               {e.name}
             </option>
           ))}

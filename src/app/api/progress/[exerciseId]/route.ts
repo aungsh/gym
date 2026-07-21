@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { sets, sessionExercises, workoutSessions, exercises } from "@/db/schema";
 import { requireServerSession } from "@/lib/server-auth";
-import { and, eq, desc, inArray } from "drizzle-orm";
+import { and, eq, inArray, desc } from "drizzle-orm";
 
 /**
  * GET /api/progress/[exerciseId]
- * Returns historical sets for this exercise across all sessions, newest first.
+ *
+ * exerciseId can be an actual UUID OR a URL-encoded exercise name.
+ * When it looks like a name (not a UUID), we look up by name and aggregate
+ * ALL sessions across every exercise variant that shares that name (e.g.
+ * "Back Squat" on lower_tue and lower_sat are grouped together).
+ *
+ * The response exercise metadata comes from the first matching exercise found.
  */
 export async function GET(
   _req: NextRequest,
@@ -16,32 +22,37 @@ export async function GET(
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { exerciseId } = await params;
+  const userId = session.user.id;
 
-  // Verify exercise belongs to user
-  const [exercise] = await db
+  // Determine if the param is a UUID or a name
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(exerciseId);
+  const decodedName = decodeURIComponent(exerciseId);
+
+  // Find all exercise rows for this user that match (by ID or by name)
+  let matchingExercises = await db
     .select()
     .from(exercises)
     .where(
-      and(eq(exercises.id, exerciseId), eq(exercises.userId, session.user.id))
+      isUUID
+        ? and(eq(exercises.id, exerciseId), eq(exercises.userId, userId))
+        : and(eq(exercises.name, decodedName), eq(exercises.userId, userId))
     );
 
-  if (!exercise) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (matchingExercises.length === 0) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
 
-  // Find ALL exercises with this exact name for this user (to merge heavy/volume variants)
-  const matchingExercises = await db
-    .select({ id: exercises.id })
-    .from(exercises)
-    .where(
-      and(eq(exercises.name, exercise.name), eq(exercises.userId, session.user.id))
-    );
-  const matchingIds = matchingExercises.map((e) => e.id);
+  // Use the first match as the "canonical" exercise for display metadata
+  const canonicalExercise = matchingExercises[0];
+  const exerciseIds = matchingExercises.map((e) => e.id);
 
-  // Get all session exercises for ANY of these exerciseIds
+  // Get all session exercises across all matching exercise IDs
   const sesExercises = await db
     .select({
       sessionExerciseId: sessionExercises.id,
       sessionId: sessionExercises.sessionId,
       date: workoutSessions.date,
+      dayType: workoutSessions.dayType,
       bodweightKg: workoutSessions.bodweightKg,
     })
     .from(sessionExercises)
@@ -51,8 +62,8 @@ export async function GET(
     )
     .where(
       and(
-        inArray(sessionExercises.exerciseId, matchingIds),
-        eq(workoutSessions.userId, session.user.id)
+        inArray(sessionExercises.exerciseId, exerciseIds),
+        eq(workoutSessions.userId, userId)
       )
     )
     .orderBy(desc(workoutSessions.date));
@@ -67,6 +78,7 @@ export async function GET(
         .orderBy(sets.setNumber);
       return {
         date: se.date,
+        dayType: se.dayType,
         sessionId: se.sessionId,
         sets: setRows.map((s) => ({
           setNumber: s.setNumber,
@@ -85,11 +97,11 @@ export async function GET(
 
   return NextResponse.json({
     exercise: {
-      id: exercise.id,
-      name: exercise.name,
-      targetSets: exercise.targetSets,
-      repRangeMin: exercise.repRangeMin,
-      repRangeMax: exercise.repRangeMax,
+      id: canonicalExercise.id,
+      name: canonicalExercise.name,
+      targetSets: canonicalExercise.targetSets,
+      repRangeMin: canonicalExercise.repRangeMin,
+      repRangeMax: canonicalExercise.repRangeMax,
     },
     history,
   });
